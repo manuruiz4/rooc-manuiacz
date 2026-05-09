@@ -14,16 +14,16 @@ describe('AppComponent', () => {
     expect(app).toBeTruthy();
   });
 
-  it(`should have the 'rooc-manuiacz' title`, () => {
+  it(`should have the 'ROOC' title`, () => {
     const fixture = TestBed.createComponent(AppComponent);
     const app = fixture.componentInstance;
-    expect(app.title).toEqual('rooc-manuiacz');
+    expect(app.title).toEqual('ROOC');
   });
 
-  it('should render title', () => {
+  it('should render the navigation brand', () => {
     const fixture = TestBed.createComponent(AppComponent);
     fixture.detectChanges();
     const compiled = fixture.nativeElement as HTMLElement;
-    expect(compiled.querySelector('h1')?.textContent).toContain('Hello, rooc-manuiacz');
+    expect(compiled.querySelector('.brand')?.textContent).toContain('ROOC');
   });
 });

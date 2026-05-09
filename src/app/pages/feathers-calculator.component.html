@@ -1,0 +1,672 @@
+﻿<section class="page-shell">
+  <p class="eyebrow">Calculator</p>
+  <h1>Feathers Calculator</h1>
+  <p class="lead">
+    Build and inspect your feather sets manually, or run the optimizer to generate the best configuration from your inventory.
+  </p>
+
+  <p class="status" *ngIf="loading">Loading feather data...</p>
+  <p class="status error" *ngIf="errorMessage">{{ errorMessage }}</p>
+
+  <ng-container *ngIf="!loading && !errorMessage">
+
+    <!-- Page header actions -->
+    <div class="action-row page-action-row">
+      <button type="button" class="ghost" (click)="openReferenceModal()">&#128196; View Feather Reference</button>
+    </div>
+
+    <!-- Build Vault -->
+    <section class="build-vault" aria-label="Saved builds">
+      <header class="build-vault-head">
+        <div>
+          <p class="build-vault-title">Build Vault</p>
+          <p class="hint">Save up to {{ savedBuildLimit }} builds locally and reload anytime.</p>
+        </div>
+        <div class="build-vault-actions">
+          <span class="vault-count-badge">{{ savedBuilds.length }} / {{ savedBuildLimit }}</span>
+          <button
+            type="button"
+            class="vault-save-btn"
+            [disabled]="!canSaveCurrentBuild()"
+            (click)="saveCurrentBuild()"
+          >
+            Save Build
+          </button>
+        </div>
+      </header>
+
+      <div class="vault-grid">
+        <article class="vault-card" *ngFor="let build of savedBuilds">
+          <header class="vault-card-head">
+            <ng-container *ngIf="renamingBuildId === build.id; else staticTitle">
+              <div class="vault-rename-row">
+                <input
+                  class="vault-rename-input"
+                  type="text"
+                  maxlength="40"
+                  [(ngModel)]="renamingBuildName"
+                  (keydown.enter)="confirmRenameBuild(build.id)"
+                  (keydown.escape)="cancelRenameBuild()"
+                  placeholder="Build name"
+                  aria-label="Rename build"
+                />
+                <button type="button" class="small" (click)="confirmRenameBuild(build.id)" [disabled]="!renamingBuildName.trim()">Save</button>
+                <button type="button" class="small ghost" (click)="cancelRenameBuild()">Cancel</button>
+              </div>
+            </ng-container>
+            <ng-template #staticTitle>
+              <p class="vault-card-title">{{ build.name }}</p>
+              <div class="vault-card-title-actions">
+                <span class="vault-card-tag">{{ getSavedBuildSetSummary(build) }}</span>
+                <button type="button" class="small ghost vault-rename-btn" (click)="startRenameBuild(build)">Rename</button>
+              </div>
+            </ng-template>
+          </header>
+          <p class="vault-card-time">Saved: {{ formatSavedBuildDate(build.createdAt) }}</p>
+          <div class="vault-card-actions">
+            <button type="button" class="small" (click)="loadSavedBuild(build.id)">Load</button>
+            <button type="button" class="small ghost" (click)="deleteSavedBuild(build.id)">Delete</button>
+          </div>
+        </article>
+
+        <article class="vault-card vault-card-empty" *ngFor="let slot of [1, 2, 3].slice(savedBuilds.length)">
+          <p class="vault-empty-title">Empty Slot</p>
+          <p class="vault-empty-sub">Save your current setup to store it here.</p>
+        </article>
+      </div>
+    </section>
+
+    <p class="status" *ngIf="savedBuildsMessage">{{ savedBuildsMessage }}</p>
+
+    <!-- Inventory -->
+    <div class="info-callout" role="note">
+      <span class="info-callout-icon" aria-hidden="true">&#9432;</span>
+      <p>Inventory is pooled by Cost Tier. Any feather can be transformed into any other feather of the same Cost Tier. Set builder levels are capped based on remaining pool budget.</p>
+    </div>
+
+    <section class="inventory-section" aria-label="Feather Inventory">
+      <h2 class="inventory-section-title">Feather Inventory</h2>
+      <p class="hint">Enter the number of each feather you own. These pools are shared across ATK and DEF sets.</p>
+    </section>
+
+    <div class="optimizer-inventory builder-inventory">
+      <section class="optimizer-group" *ngFor="let group of featherGroups">
+        <h3>{{ group.type }} Inventory</h3>
+
+        <div class="optimizer-tier-section" *ngFor="let tierGroup of group.tierGroups">
+          <div class="optimizer-tier-label">
+            <span class="tier" [attr.data-tier]="tierGroup.tier">{{ tierGroup.tier }}</span>
+          </div>
+          <div class="optimizer-items">
+            <article class="optimizer-item" *ngFor="let feather of tierGroup.feathers">
+              <div
+                class="optimizer-item-art"
+                [attr.data-tier]="feather.tier"
+                [style.background-image]="'url(' + getFeatherImageUrl(feather) + ')'"
+              ></div>
+              <div class="optimizer-item-meta">
+                <p class="optimizer-item-name">{{ feather.name }}</p>
+                <p class="optimizer-item-sub">{{ feather.tier }}</p>
+              </div>
+              <label class="optimizer-count">
+                Count
+                <input
+                  type="number"
+                  min="0"
+                  [value]="getOptimizerInventoryQuantity(feather.id)"
+                  (input)="onOptimizerInventoryChange(feather.id, $event)"
+                />
+              </label>
+            </article>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <!-- Optimizer Section -->
+    <section class="optimizer-section" aria-label="Build Optimizer">
+      <header class="optimizer-section-head">
+        <div>
+          <p class="optimizer-section-label">Build Optimizer</p>
+          <p class="hint">Select stats to prioritize, then run the optimizer to auto-fill your feather sets from inventory.</p>
+        </div>
+        <button type="button" class="primary-cta" (click)="runBuildOptimizer()">&#9881; Optimize Build</button>
+      </header>
+
+      <div class="optimizer-stat-controls">
+        <label>
+          Primary Stat
+          <select [(ngModel)]="optimizerStatCode" (ngModelChange)="onOptimizerPrimaryStatChange($event)">
+            <option *ngFor="let stat of getAvailableOptimizerStats()" [ngValue]="stat.statCode">
+              {{ stat.statName }}
+            </option>
+          </select>
+        </label>
+
+        <label>
+          Secondary <span class="optional-label">(Optional)</span>
+          <select [(ngModel)]="optimizerSecondaryStatCode" (ngModelChange)="onOptimizerSecondaryStatChange($event)">
+            <option [ngValue]="null">None</option>
+            <option *ngFor="let stat of getAvailableOptimizerStats()" [ngValue]="stat.statCode">
+              {{ stat.statName }}
+            </option>
+          </select>
+        </label>
+
+        <label>
+          Third <span class="optional-label">(Optional)</span>
+          <select [(ngModel)]="optimizerThirdStatCode" (ngModelChange)="onOptimizerThirdStatChange($event)">
+            <option [ngValue]="null">None</option>
+            <option *ngFor="let stat of getAvailableOptimizerStats()" [ngValue]="stat.statCode">
+              {{ stat.statName }}
+            </option>
+          </select>
+        </label>
+      </div>
+
+      <p class="status optimizer-status" *ngIf="optimizerMessage">{{ optimizerMessage }}</p>
+    </section>
+
+    <p class="status" *ngIf="builderInventoryMessage">{{ builderInventoryMessage }}</p>
+
+    <!-- ATK Sets -->
+    <section class="sets-group sets-group-atk">
+      <h2 class="sets-group-title sets-group-title-atk">&#9876; ATK Sets</h2>
+      <div class="set-grid">
+        <article
+          class="set-card optimizer-set-accordion"
+          *ngFor="let set of getAtkSets(); let i = index"
+          [class.collapsed]="isBuilderSetCollapsed(set.id)"
+        >
+          <header class="set-card-head optimizer-accordion-head" (click)="toggleBuilderSet(set.id)">
+            <div class="optimizer-accordion-title">
+              <span class="optimizer-accordion-chevron">{{ isBuilderSetCollapsed(set.id) ? '&#9654;' : '&#9660;' }}</span>
+              <h3>ATK Set {{ i + 1 }}</h3>
+            </div>
+            <div class="set-head-actions">
+              <span class="set-type" [attr.data-type]="set.setType">{{ set.setType }}</span>
+            </div>
+          </header>
+
+          <div class="optimizer-accordion-body" *ngIf="!isBuilderSetCollapsed(set.id)">
+            <div class="slot-grid">
+              <article class="slot-card" *ngFor="let slot of set.slots; let slotIndex = index">
+                <div class="slot-top">
+                  <span class="slot-label">Slot {{ slotIndex + 1 }}</span>
+                  <span class="slot-cost">Cost: {{ getSlotCost(slot) }}</span>
+                </div>
+
+                <article class="selected-feather" *ngIf="getFeatherById(slot.featherId) as selectedFeather; else emptySlotAtk">
+                  <div
+                    class="selected-feather-art"
+                    [attr.data-tier]="selectedFeather.tier"
+                    [style.background-image]="'url(' + getFeatherImageUrl(selectedFeather) + ')'"
+                  ></div>
+                  <div class="selected-feather-meta">
+                    <p class="selected-feather-name">{{ selectedFeather.name }}</p>
+                    <p class="selected-feather-sub">{{ selectedFeather.tier }}</p>
+                  </div>
+                </article>
+
+                <ng-template #emptySlotAtk>
+                  <article class="selected-feather empty">
+                    <div class="selected-feather-art empty-art"></div>
+                    <div class="selected-feather-meta">
+                      <p class="selected-feather-name">No Feather Equipped</p>
+                      <p class="selected-feather-sub">Choose a feather to activate this slot</p>
+                    </div>
+                  </article>
+                </ng-template>
+
+                <div class="slot-actions">
+                  <button type="button" class="small" (click)="openPicker(set, slotIndex)">
+                    {{ slot.featherId ? 'Change Feather' : 'Choose Feather' }}
+                  </button>
+                  <button
+                    type="button"
+                    class="small ghost"
+                    (click)="clearSlot(set, slotIndex)"
+                    [disabled]="!slot.featherId"
+                  >
+                    Clear
+                  </button>
+                </div>
+
+                <div class="level-row">
+                  <label [attr.for]="'level-' + set.id + '-' + slotIndex">Lv {{ slot.level }}</label>
+                  <input
+                    type="range"
+                    [id]="'level-' + set.id + '-' + slotIndex"
+                    min="1"
+                    [max]="getBuilderSlotMaxLevel(set, slotIndex)"
+                    [value]="slot.level"
+                    [disabled]="!slot.featherId"
+                    (input)="onLevelChange(set, slotIndex, $event)"
+                  />
+                  <span class="slot-limit-hint" *ngIf="slot.featherId">
+                    Max Lv {{ getBuilderSlotMaxLevel(set, slotIndex) }} with current pool
+                  </span>
+                </div>
+              </article>
+            </div>
+
+            <section class="set-stats" *ngIf="getSetStatTotals(set).length > 0">
+              <div class="set-stats-columns">
+                <section class="set-stats-col set-stats-col-active">
+                  <p class="set-stats-title">Active Bonus</p>
+                  <ng-container *ngIf="getActiveSetBonus(set) as activeBonus; else noActiveBonusAtk">
+                    <div class="active-bonus compact">
+                      <p class="active-bonus-name">{{ activeBonus.setBonusName }}</p>
+                      <p class="active-bonus-requirement">
+                        Req:
+                        <span *ngFor="let req of activeBonus.setRequirement" class="tier-dot" [attr.data-tier]="req" [title]="req"></span>
+                      </p>
+                    </div>
+                  </ng-container>
+                  <ng-template #noActiveBonusAtk><p class="hint">No set bonus active.</p></ng-template>
+                  <p class="set-power" *ngIf="getSetPower(set) as setPower">Power: {{ setPower }}</p>
+                </section>
+
+                <section class="set-stats-col">
+                  <p class="set-stats-title">Set Stat Bonus</p>
+                  <ng-container *ngIf="getActiveSetBonus(set) as activeBonus; else noSetBonusAtk">
+                    <div class="stats-list stats-list-compact">
+                      <span class="stat-chip stat-chip-compact bonus-group-chip" *ngFor="let groupedBonus of activeBonus.setBonusesGrouped">
+                        {{ groupedBonus.statGroupDisplayName }}
+                        +{{ getGroupedBonusValueAtLevel(groupedBonus, getSetBonusLevelForDisplay(set)) }}{{ groupedBonus.isPercentage ? '%' : '' }}
+                      </span>
+                      <span class="stat-chip stat-chip-compact" *ngFor="let bonusStat of activeBonus.setBonuses">
+                        {{ getStatName(bonusStat.statCode) }} +{{ getSetBonusFlatStatValue(bonusStat.statValue, getSetBonusLevelForDisplay(set)) }}
+                      </span>
+                    </div>
+                  </ng-container>
+                  <ng-template #noSetBonusAtk><p class="hint">No set bonus active.</p></ng-template>
+                </section>
+
+                <section class="set-stats-col">
+                  <p class="set-stats-title">Feather Bonuses</p>
+                  <div class="stats-list stats-list-compact">
+                    <span class="stat-chip stat-chip-compact" *ngFor="let stat of getSetFeatherStats(set)">
+                      {{ stat.statName }} +{{ stat.statValue }}
+                    </span>
+                  </div>
+                </section>
+              </div>
+            </section>
+
+            <div class="set-footer-actions">
+              <button
+                type="button"
+                class="small ghost"
+                (click)="copySetToOthers(set)"
+                [disabled]="!hasOtherSetOfType(set)"
+              >
+                Copy Set To Others
+              </button>
+            </div>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <!-- DEF Sets -->
+    <section class="sets-group sets-group-def">
+      <h2 class="sets-group-title sets-group-title-def">&#128737; DEF Sets</h2>
+      <div class="set-grid">
+        <article
+          class="set-card optimizer-set-accordion"
+          *ngFor="let set of getDefSets(); let i = index"
+          [class.collapsed]="isBuilderSetCollapsed(set.id)"
+        >
+          <header class="set-card-head optimizer-accordion-head" (click)="toggleBuilderSet(set.id)">
+            <div class="optimizer-accordion-title">
+              <span class="optimizer-accordion-chevron">{{ isBuilderSetCollapsed(set.id) ? '&#9654;' : '&#9660;' }}</span>
+              <h3>DEF Set {{ i + 1 }}</h3>
+            </div>
+            <div class="set-head-actions">
+              <span class="set-type" [attr.data-type]="set.setType">{{ set.setType }}</span>
+            </div>
+          </header>
+
+          <div class="optimizer-accordion-body" *ngIf="!isBuilderSetCollapsed(set.id)">
+            <div class="slot-grid">
+              <article class="slot-card" *ngFor="let slot of set.slots; let slotIndex = index">
+                <div class="slot-top">
+                  <span class="slot-label">Slot {{ slotIndex + 1 }}</span>
+                  <span class="slot-cost">Cost: {{ getSlotCost(slot) }}</span>
+                </div>
+
+                <article class="selected-feather" *ngIf="getFeatherById(slot.featherId) as selectedFeather; else emptySlotDef">
+                  <div
+                    class="selected-feather-art"
+                    [attr.data-tier]="selectedFeather.tier"
+                    [style.background-image]="'url(' + getFeatherImageUrl(selectedFeather) + ')'"
+                  ></div>
+                  <div class="selected-feather-meta">
+                    <p class="selected-feather-name">{{ selectedFeather.name }}</p>
+                    <p class="selected-feather-sub">{{ selectedFeather.tier }}</p>
+                  </div>
+                </article>
+
+                <ng-template #emptySlotDef>
+                  <article class="selected-feather empty">
+                    <div class="selected-feather-art empty-art"></div>
+                    <div class="selected-feather-meta">
+                      <p class="selected-feather-name">No Feather Equipped</p>
+                      <p class="selected-feather-sub">Choose a feather to activate this slot</p>
+                    </div>
+                  </article>
+                </ng-template>
+
+                <div class="slot-actions">
+                  <button type="button" class="small" (click)="openPicker(set, slotIndex)">
+                    {{ slot.featherId ? 'Change Feather' : 'Choose Feather' }}
+                  </button>
+                  <button
+                    type="button"
+                    class="small ghost"
+                    (click)="clearSlot(set, slotIndex)"
+                    [disabled]="!slot.featherId"
+                  >
+                    Clear
+                  </button>
+                </div>
+
+                <div class="level-row">
+                  <label [attr.for]="'level-' + set.id + '-' + slotIndex">Lv {{ slot.level }}</label>
+                  <input
+                    type="range"
+                    [id]="'level-' + set.id + '-' + slotIndex"
+                    min="1"
+                    [max]="getBuilderSlotMaxLevel(set, slotIndex)"
+                    [value]="slot.level"
+                    [disabled]="!slot.featherId"
+                    (input)="onLevelChange(set, slotIndex, $event)"
+                  />
+                  <span class="slot-limit-hint" *ngIf="slot.featherId">
+                    Max Lv {{ getBuilderSlotMaxLevel(set, slotIndex) }} with current pool
+                  </span>
+                </div>
+              </article>
+            </div>
+
+            <section class="set-stats" *ngIf="getSetStatTotals(set).length > 0">
+              <div class="set-stats-columns">
+                <section class="set-stats-col set-stats-col-active">
+                  <p class="set-stats-title">Active Bonus</p>
+                  <ng-container *ngIf="getActiveSetBonus(set) as activeBonus; else noActiveBonusDef">
+                    <div class="active-bonus compact">
+                      <p class="active-bonus-name">{{ activeBonus.setBonusName }}</p>
+                      <p class="active-bonus-requirement">
+                        Req:
+                        <span *ngFor="let req of activeBonus.setRequirement" class="tier-dot" [attr.data-tier]="req" [title]="req"></span>
+                      </p>
+                    </div>
+                  </ng-container>
+                  <ng-template #noActiveBonusDef><p class="hint">No set bonus active.</p></ng-template>
+                  <p class="set-power" *ngIf="getSetPower(set) as setPower">Power: {{ setPower }}</p>
+                </section>
+
+                <section class="set-stats-col">
+                  <p class="set-stats-title">Set Stat Bonus</p>
+                  <ng-container *ngIf="getActiveSetBonus(set) as activeBonus; else noSetBonusDef">
+                    <div class="stats-list stats-list-compact">
+                      <span class="stat-chip stat-chip-compact bonus-group-chip" *ngFor="let groupedBonus of activeBonus.setBonusesGrouped">
+                        {{ groupedBonus.statGroupDisplayName }}
+                        +{{ getGroupedBonusValueAtLevel(groupedBonus, getSetBonusLevelForDisplay(set)) }}{{ groupedBonus.isPercentage ? '%' : '' }}
+                      </span>
+                      <span class="stat-chip stat-chip-compact" *ngFor="let bonusStat of activeBonus.setBonuses">
+                        {{ getStatName(bonusStat.statCode) }} +{{ getSetBonusFlatStatValue(bonusStat.statValue, getSetBonusLevelForDisplay(set)) }}
+                      </span>
+                    </div>
+                  </ng-container>
+                  <ng-template #noSetBonusDef><p class="hint">No set bonus active.</p></ng-template>
+                </section>
+
+                <section class="set-stats-col">
+                  <p class="set-stats-title">Feather Bonuses</p>
+                  <div class="stats-list stats-list-compact">
+                    <span class="stat-chip stat-chip-compact" *ngFor="let stat of getSetFeatherStats(set)">
+                      {{ stat.statName }} +{{ stat.statValue }}
+                    </span>
+                  </div>
+                </section>
+              </div>
+            </section>
+
+            <div class="set-footer-actions">
+              <button
+                type="button"
+                class="small ghost"
+                (click)="copySetToOthers(set)"
+                [disabled]="!hasOtherSetOfType(set)"
+              >
+                Copy Set To Others
+              </button>
+            </div>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <!-- Combined Totals -->
+    <section class="builder-total" *ngIf="getBuilderTotalStats().length > 0">
+      <p class="set-stats-title">Combined Stats Across All Sets</p>
+      <p class="builder-total-power" *ngIf="getBuilderTotalPower() as totalPower">Total Power: {{ totalPower }}</p>
+      <div class="stats-list">
+        <span class="stat-chip" *ngFor="let stat of getBuilderTotalStats()">
+          {{ stat.statName }} +{{ stat.statValue }}
+        </span>
+      </div>
+    </section>
+
+    <!-- Optimizer result summary (shown after optimization) -->
+    <section class="optimizer-result-summary" *ngIf="optimizerResult as result">
+      <div class="optimizer-summary-meta">
+        <div class="optimizer-summary-row">
+          <span class="optimizer-summary-label">Sets built</span>
+          <span class="optimizer-summary-value">{{ result.fullSetPairs }} full pair(s)</span>
+        </div>
+        <div class="optimizer-summary-row">
+          <span class="optimizer-summary-label">Primary stat</span>
+          <span class="optimizer-summary-value">{{ getStatName(result.requestedStatCode) }}</span>
+        </div>
+        <div class="optimizer-summary-row">
+          <span class="optimizer-summary-label">Secondary stat</span>
+          <span class="optimizer-summary-value">{{ result.requestedSecondaryStatCode === null ? 'None' : getStatName(result.requestedSecondaryStatCode) }}</span>
+        </div>
+        <div class="optimizer-summary-row">
+          <span class="optimizer-summary-label">Third stat</span>
+          <span class="optimizer-summary-value">{{ result.requestedThirdStatCode === null ? 'None' : getStatName(result.requestedThirdStatCode) }}</span>
+        </div>
+      </div>
+      <p class="all-total">Optimizer Total Cost: {{ getOptimizerAllSetsCost(result) }}</p>
+      <p class="all-total" *ngIf="result.power > 0">Optimizer Total Power: {{ result.power }}</p>
+
+      <section class="optimizer-transformations" *ngIf="result.transformationSummary.length > 0">
+        <p class="set-stats-title">Cost Tier Transformation Summary (All Sets)</p>
+        <div class="optimizer-transformation-grid">
+          <article class="optimizer-transformation-card" *ngFor="let summary of result.transformationSummary">
+            <header class="optimizer-transformation-head">
+              <h3>Cost Tier {{ summary.costTier }}</h3>
+              <span class="optimizer-transformation-balance">
+                Used {{ summary.used }} / {{ summary.available }}
+              </span>
+            </header>
+            <p class="optimizer-transformation-remaining">Remaining pool: {{ summary.remaining }}</p>
+            <div class="stats-list" *ngIf="summary.assignments.length > 0">
+              <span class="stat-chip" *ngFor="let assignment of summary.assignments">
+                {{ assignment.featherName }} | {{ assignment.featherType }}/{{ assignment.featherTier }} | x{{ assignment.slotCount }} | used {{ assignment.used }}
+              </span>
+            </div>
+          </article>
+        </div>
+      </section>
+    </section>
+
+    <!-- Build Comparison -->
+    <section class="build-compare">
+      <header class="build-compare-head" (click)="toggleBuildCompare()">
+        <div>
+          <p class="build-compare-title">&#128202; Build Comparison Report</p>
+          <p class="hint">Compare Combined Stats Across All Sets and track improvements between builds.</p>
+        </div>
+        <span class="build-compare-chevron">{{ buildCompareCollapsed ? '&#9654;' : '&#9660;' }}</span>
+      </header>
+
+      <ng-container *ngIf="!buildCompareCollapsed">
+
+      <div class="build-compare-controls">
+        <label>
+          Baseline Build
+          <select [(ngModel)]="comparisonBaseBuildId" (ngModelChange)="onBuildComparisonSelectionChange()">
+            <option *ngFor="let option of getBuildComparisonOptions()" [ngValue]="option.id">
+              {{ option.label }}
+            </option>
+          </select>
+        </label>
+
+        <label>
+          Compare To
+          <select [(ngModel)]="comparisonTargetBuildId" (ngModelChange)="onBuildComparisonSelectionChange()">
+            <option *ngFor="let option of getBuildComparisonOptions()" [ngValue]="option.id" [disabled]="option.id === comparisonBaseBuildId">
+              {{ option.label }}
+            </option>
+          </select>
+        </label>
+      </div>
+
+      <ng-container *ngIf="getBuildComparisonReport() as report">
+        <div class="compare-summary-row">
+          <span class="compare-summary-chip positive">Improved: {{ report.improvedCount }}</span>
+          <span class="compare-summary-chip negative">Regressed: {{ report.regressedCount }}</span>
+          <span class="compare-summary-chip neutral">Unchanged: {{ report.unchangedCount }}</span>
+          <span class="compare-summary-chip" [class.positive]="report.netDelta > 0" [class.negative]="report.netDelta < 0" [class.neutral]="report.netDelta === 0">
+            Net Delta: {{ formatComparisonDelta(report.netDelta) }}
+          </span>
+        </div>
+
+        <p class="compare-pair-title">{{ report.targetLabel }} vs {{ report.baseLabel }}</p>
+
+        <p class="compare-truncation-note" *ngIf="report.rows.length > 8">Showing 8 of {{ report.rows.length }} stats &mdash; see full table below.</p>
+        <section class="compare-graph-grid">
+          <article class="compare-graph-card" *ngFor="let row of report.rows.slice(0, 8)">
+            <div class="compare-graph-head">
+              <p>{{ row.statName }}</p>
+              <span [class]="'delta ' + getComparisonDeltaClass(row.delta)">{{ formatComparisonDelta(row.delta) }}</span>
+            </div>
+            <div class="compare-bars">
+              <div class="compare-bar base" [style.width.%]="getComparisonBarWidth(row.baseValue, report.maxStatValue)"></div>
+              <div class="compare-bar target" [style.width.%]="getComparisonBarWidth(row.targetValue, report.maxStatValue)"></div>
+            </div>
+            <p class="compare-values">{{ report.baseLabel }}: {{ row.baseValue }} | {{ report.targetLabel }}: {{ row.targetValue }}</p>
+          </article>
+        </section>
+
+        <div class="compare-table-wrap">
+          <table class="compare-table">
+            <thead>
+              <tr>
+                <th>Stat</th>
+                <th>{{ report.baseLabel }}</th>
+                <th>{{ report.targetLabel }}</th>
+                <th>Delta</th>
+                <th>Delta %</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let row of report.rows">
+                <td>{{ row.statName }}</td>
+                <td>{{ row.baseValue }}</td>
+                <td>{{ row.targetValue }}</td>
+                <td [class]="'delta ' + getComparisonDeltaClass(row.delta)">{{ formatComparisonDelta(row.delta) }}</td>
+                <td>
+                  <span *ngIf="row.deltaPercent !== null; else noPercent">{{ row.deltaPercent | number:'1.0-2' }}%</span>
+                  <ng-template #noPercent>--</ng-template>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </ng-container>
+      </ng-container>
+    </section>
+
+  </ng-container>
+
+  <!-- Modals -->
+  <div class="modal-overlay" *ngIf="showReferenceModal" (click)="closeReferenceModal()">
+    <section class="reference-modal" (click)="$event.stopPropagation()">
+      <header class="modal-head">
+        <h2>Feather Reference</h2>
+        <button type="button" class="close-btn" (click)="closeReferenceModal()">Close</button>
+      </header>
+
+      <p class="hint">Reference list is grouped by type and shows level costs and stats.</p>
+
+      <div class="groups" *ngIf="featherGroups.length > 0">
+        <section class="type-group" *ngFor="let group of featherGroups">
+          <h2>{{ group.type }}</h2>
+
+          <div class="cards-grid">
+            <article class="feather-card" *ngFor="let feather of getAllFeathersFromGroup(group)">
+              <div
+                class="feather-art"
+                [attr.data-tier]="feather.tier"
+                [style.background-image]="'url(' + getFeatherImageUrl(feather) + ')'"
+              ></div>
+              <header class="card-head">
+                <h3>{{ feather.name }}</h3>
+                <span class="tier" [attr.data-tier]="feather.tier">{{ feather.tier }}</span>
+              </header>
+
+              <p class="cost">Lv 1-{{ maxFeatherLevel }}: {{ formatCostLevels(feather.costLevels) }}</p>
+
+              <div class="stats-list">
+                <span class="stat-chip" *ngFor="let stat of feather.stats">
+                  {{ getStatName(stat.statCode) }} +{{ formatStatValueRange(stat.statValue) }}
+                </span>
+              </div>
+            </article>
+          </div>
+        </section>
+      </div>
+    </section>
+  </div>
+
+  <div class="modal-overlay" *ngIf="showPickerModal && activePickerContext" (click)="closePicker()">
+    <section class="picker-modal" (click)="$event.stopPropagation()">
+      <header class="modal-head">
+        <h2>Choose Feather</h2>
+        <button type="button" class="close-btn" (click)="closePicker()">Close</button>
+      </header>
+
+      <p class="hint" *ngIf="getPickerSetType() as pickerSetType">
+        {{ pickerSetType }} set: only compatible feathers are selectable.
+      </p>
+
+      <div class="picker-grid" *ngIf="getPickerSetType() as pickerSetType">
+        <article
+          class="picker-card"
+          [class.disabled]="isPickerOptionDisabled(feather.id)"
+          *ngFor="let feather of getSelectableFeathers(pickerSetType)"
+          (click)="selectFeatherFromPicker(feather.id)"
+        >
+          <div
+            class="picker-art"
+            [attr.data-tier]="feather.tier"
+            [style.background-image]="'url(' + getFeatherImageUrl(feather) + ')'"
+          ></div>
+          <div class="picker-meta">
+            <p class="picker-name">{{ feather.name }}</p>
+            <p class="picker-sub">{{ feather.tier }}</p>
+          </div>
+        </article>
+      </div>
+    </section>
+  </div>
+
+  <p class="status" *ngIf="!loading && !errorMessage && featherGroups.length === 0">
+    No feather data found. Add entries in /public/data/feathers.json.
+  </p>
+</section>

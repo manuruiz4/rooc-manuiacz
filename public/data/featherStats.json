@@ -1,0 +1,103 @@
+[
+    {
+        "statCode": 1,
+        "statName": "Max HP"
+    },
+    {
+        "statCode": 2,
+        "statName": "Max SP"
+    },
+    {
+        "statCode": 3,
+        "statName": "PATK"
+    },
+    {
+        "statCode": 4,
+        "statName": "MATK"
+    },
+    {
+        "statCode": 5,
+        "statName": "PDEF"
+    },
+    {
+        "statCode": 6,
+        "statName": "MDEF"
+    },
+    {
+        "statCode": 7,
+        "statName": "HP Recover"
+    },
+    {
+        "statCode": 8,
+        "statName": "SP Recover"
+    },
+    {
+        "statCode": 9,
+        "statName": "Hit"
+    },
+    {
+        "statCode": 10,
+        "statName": "Flee"
+    },
+    {
+        "statCode": 11,
+        "statName": "PATK/MATK"
+    },
+    {
+        "statCode": 12,
+        "statName": "Ignore PDEF"
+    },
+    {
+        "statCode": 13,
+        "statName": "Ignore MDEF"
+    },
+    {
+        "statCode": 14,
+        "statName": "PVP DMG Bonus"
+    },
+    {
+        "statCode": 15,
+        "statName": "PVE DMG Bonus"
+    },
+    {
+        "statCode": 16,
+        "statName": "PVP DMG Reduction"
+    },
+    {
+        "statCode": 17,
+        "statName": "PVE DMG Reduction"
+    },
+    {
+        "statCode": 18,
+        "statName": "PDMG/MDMG %"
+    },
+        {
+        "statCode": 19,
+        "statName": "PDMG/MDMG Reduction %"
+    },
+    {
+        "statCode": 91,
+        "statName": "STR"
+    },
+    {
+        "statCode": 92,
+        "statName": "INT"
+    },
+    {
+        "statCode": 93,
+        "statName": "VIT"
+    },
+    {
+        "statCode": 94,
+        "statName": "AGI"
+    },
+    {
+        "statCode": 95,
+        "statName": "DEX"
+    },
+    {
+        "statCode": 96,
+        "statName": "LUK"
+    }
+  
+]

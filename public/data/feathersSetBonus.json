@@ -1,0 +1,668 @@
+[
+    {
+        "setBonusName": "Raven's Hour",
+        "setRequirement": [
+            "Gold",
+            "Gold",
+            "Gold",
+            "Gold",
+            "Purple"
+        ],
+        "setClassification": "ATK",
+        "setBonuses": [
+            {
+                "statCode": 11,
+                "statValue": [
+                    13,
+                    18,
+                    23,
+                    28,
+                    33,
+                    38,
+                    43,
+                    48,
+                    53,
+                    58
+                ]
+            },
+            {
+                "statCode": 14,
+                "statValue": [
+                    12,
+                    15,
+                    18,
+                    21,
+                    24,
+                    27,
+                    30,
+                    33,
+                    36,
+                    39
+                ]
+            }
+        ],
+        "setBonusesGrouped": [
+            {
+                "statGroupDisplayName": "Attack Stats",
+                "statIncluded": [
+                    12,
+                    13,
+                    11,
+                    18
+                ],
+                "statBonus": [
+                    10,
+                    11,
+                    12,
+                    13,
+                    14,
+                    15,
+                    16,
+                    17,
+                    18,
+                    20
+                ],
+                "isPercentage": true
+            },
+            {
+                "statGroupDisplayName": "PvE Stats",
+                "statIncluded": [
+                    17,
+                    15
+                ],
+                "statBonus": [
+                    30,
+                    33,
+                    36,
+                    39,
+                    42,
+                    45,
+                    48,
+                    51,
+                    54,
+                    60
+                ],
+                "isPercentage": true
+            },
+            {
+                "statGroupDisplayName": "PvP Stats",
+                "statIncluded": [
+                    16,
+                    14
+                ],
+                "statBonus": [
+                    30,
+                    33,
+                    36,
+                    39,
+                    42,
+                    45,
+                    48,
+                    51,
+                    54,
+                    60
+                ],
+                "isPercentage": true
+            }
+        ]
+    },
+    {
+        "setBonusName": "Raven's Prestige",
+        "setRequirement": [
+            "Gold",
+            "Gold",
+            "Gold",
+            "Purple",
+            "Purple"
+        ],
+        "setClassification": "ATK",
+        "setBonuses": [
+            {
+                "statCode": 11,
+                "statValue": [
+                    12,
+                    16,
+                    20,
+                    24,
+                    28,
+                    32,
+                    36,
+                    40,
+                    44,
+                    48
+                ]
+            },
+            {
+                "statCode": 14,
+                "statValue": [
+                    9,
+                    12,
+                    15,
+                    18,
+                    21,
+                    24,
+                    27,
+                    30,
+                    33,
+                    36
+                ]
+            }
+        ],
+        "setBonusesGrouped": [
+            {
+                "statGroupDisplayName": "Attack Stats",
+                "statIncluded": [
+                    12,
+                    13,
+                    11,
+                    18
+                ],
+                "statBonus": [
+                    10,
+                    11,
+                    12,
+                    13,
+                    14,
+                    15,
+                    16,
+                    17,
+                    18,
+                    20
+                ],
+                "isPercentage": true
+            },
+            {
+                "statGroupDisplayName": "PvE Stats",
+                "statIncluded": [
+                    17,
+                    15
+                ],
+                "statBonus": [
+                    30,
+                    33,
+                    36,
+                    39,
+                    42,
+                    45,
+                    48,
+                    51,
+                    54,
+                    60
+                ],
+                "isPercentage": true
+            }
+        ]
+    },
+    {
+        "setBonusName": "Raven's Plunder",
+        "setRequirement": [
+            "Gold",
+            "Gold",
+            "Purple",
+            "Purple",
+            "Purple"
+        ],
+        "setClassification": "ATK",
+        "setBonuses": [
+            {
+                "statCode": 11,
+                "statValue": [
+                    11,
+                    14,
+                    17,
+                    20,
+                    23,
+                    26,
+                    29,
+                    32,
+                    35,
+                    38
+                ]
+            },
+            {
+                "statCode": 15,
+                "statValue": [
+                    6,
+                    9,
+                    12,
+                    15,
+                    18,
+                    21,
+                    24,
+                    27,
+                    30,
+                    33
+                ]
+            }
+        ],
+        "setBonusesGrouped": [
+            {
+                "statGroupDisplayName": "Attack Stats",
+                "statIncluded": [
+                    12,
+                    13,
+                    11,
+                    18
+                ],
+                "statBonus": [
+                    10,
+                    11,
+                    12,
+                    13,
+                    14,
+                    15,
+                    16,
+                    17,
+                    18,
+                    20
+                ],
+                "isPercentage": true
+            },
+            {
+                "statGroupDisplayName": "PvE Stats",
+                "statIncluded": [
+                    17,
+                    15
+                ],
+                "statBonus": [
+                    30,
+                    33,
+                    36,
+                    39,
+                    42,
+                    45,
+                    48,
+                    51,
+                    54,
+                    60
+                ],
+                "isPercentage": true
+            }
+        ]
+    },
+    {
+        "setBonusName": "Raven's Edge",
+        "setRequirement": [
+            "Gold",
+            "Purple",
+            "Purple",
+            "Purple",
+            "Purple"
+        ],
+        "setClassification": "ATK",
+        "setBonuses": [
+            {
+                "statCode": 11,
+                "statValue": [
+                    10,
+                    12,
+                    14,
+                    16,
+                    18,
+                    20,
+                    22,
+                    24,
+                    26,
+                    28
+                ]
+            }
+        ],
+        "setBonusesGrouped": [
+            {
+                "statGroupDisplayName": "Attack Stats",
+                "statIncluded": [
+                    12,
+                    13,
+                    11,
+                    18
+                ],
+                "statBonus": [
+                    10,
+                    11,
+                    12,
+                    13,
+                    14,
+                    15,
+                    16,
+                    17,
+                    18,
+                    20
+                ],
+                "isPercentage": true
+            }
+        ]
+    },
+    {
+        "setBonusName": "Raven's Hour",
+        "setRequirement": [
+            "Gold",
+            "Gold",
+            "Gold",
+            "Gold",
+            "Purple"
+        ],
+        "setClassification": "DEF",
+        "setBonuses": [
+            {
+                "statCode": 1,
+                "statValue": [
+                    110,
+                    200,
+                    290,
+                    380,
+                    470,
+                    560,
+                    650,
+                    740,
+                    830,
+                    920
+                ]
+            },
+            {
+                "statCode": 16,
+                "statValue": [
+                    12,
+                    15,
+                    18,
+                    21,
+                    24,
+                    27,
+                    30,
+                    33,
+                    36,
+                    39
+                ]
+            }
+        ],
+        "setBonusesGrouped": [
+            {
+                "statGroupDisplayName": "Defense Stats",
+                "statIncluded": [
+                    5,
+                    6,
+                    1,
+                    19
+                ],
+                "statBonus": [
+                    10,
+                    11,
+                    12,
+                    13,
+                    14,
+                    15,
+                    16,
+                    17,
+                    18,
+                    20
+                ],
+                "isPercentage": true
+            },
+            {
+                "statGroupDisplayName": "PvE Stats",
+                "statIncluded": [
+                    17,
+                    15
+                ],
+                "statBonus": [
+                    30,
+                    33,
+                    36,
+                    39,
+                    42,
+                    45,
+                    48,
+                    51,
+                    54,
+                    60
+                ],
+                "isPercentage": true
+            },
+            {
+                "statGroupDisplayName": "PvP Stats",
+                "statIncluded": [
+                    16,
+                    14
+                ],
+                "statBonus": [
+                    30,
+                    33,
+                    36,
+                    39,
+                    42,
+                    45,
+                    48,
+                    51,
+                    54,
+                    60
+                ],
+                "isPercentage": true
+            }
+        ]
+    },
+    {
+        "setBonusName": "Raven's Prestige",
+        "setRequirement": [
+            "Gold",
+            "Gold",
+            "Gold",
+            "Purple",
+            "Purple"
+        ],
+        "setClassification": "DEF",
+        "setBonuses": [
+            {
+                "statCode": 1,
+                "statValue": [
+                    100,
+                    180,
+                    260,
+                    340,
+                    420,
+                    500,
+                    580,
+                    660,
+                    740,
+                    820
+                ]
+            },
+            {
+                "statCode": 16,
+                "statValue": [
+                    9,
+                    12,
+                    15,
+                    18,
+                    21,
+                    24,
+                    27,
+                    30,
+                    33,
+                    36
+                ]
+            }
+        ],
+        "setBonusesGrouped": [
+            {
+                "statGroupDisplayName": "Defense Stats",
+                "statIncluded": [
+                    5,
+                    6,
+                    1,
+                    19
+                ],
+                "statBonus": [
+                    10,
+                    11,
+                    12,
+                    13,
+                    14,
+                    15,
+                    16,
+                    17,
+                    18,
+                    20
+                ],
+                "isPercentage": true
+            },
+            {
+                "statGroupDisplayName": "PvE Stats",
+                "statIncluded": [
+                    17,
+                    15
+                ],
+                "statBonus": [
+                    30,
+                    33,
+                    36,
+                    39,
+                    42,
+                    45,
+                    48,
+                    51,
+                    54,
+                    60
+                ],
+                "isPercentage": true
+            }
+        ]
+    },
+    {
+        "setBonusName": "Raven's Plunder",
+        "setRequirement": [
+            "Gold",
+            "Gold",
+            "Purple",
+            "Purple",
+            "Purple"
+        ],
+        "setClassification": "DEF",
+        "setBonuses": [
+            {
+                "statCode": 1,
+                "statValue": [
+                    90,
+                    160,
+                    230,
+                    300,
+                    370,
+                    440,
+                    510,
+                    580,
+                    650,
+                    720
+                ]
+            },
+            {
+                "statCode": 16,
+                "statValue": [
+                    6,
+                    9,
+                    12,
+                    15,
+                    18,
+                    21,
+                    24,
+                    27,
+                    30,
+                    33
+                ]
+            }
+        ],
+        "setBonusesGrouped": [
+            {
+                "statGroupDisplayName": "Defense Stats",
+                "statIncluded": [
+                    5,
+                    6,
+                    1,
+                    19
+                ],
+                "statBonus": [
+                    10,
+                    11,
+                    12,
+                    13,
+                    14,
+                    15,
+                    16,
+                    17,
+                    18,
+                    20
+                ],
+                "isPercentage": true
+            },
+            {
+                "statGroupDisplayName": "PvE Stats",
+                "statIncluded": [
+                    17,
+                    15
+                ],
+                "statBonus": [
+                    30,
+                    33,
+                    36,
+                    39,
+                    42,
+                    45,
+                    48,
+                    51,
+                    54,
+                    60
+                ],
+                "isPercentage": true
+            }
+        ]
+    },
+    {
+        "setBonusName": "Raven's Edge",
+        "setRequirement": [
+            "Gold",
+            "Purple",
+            "Purple",
+            "Purple",
+            "Purple"
+        ],
+        "setClassification": "DEF",
+        "setBonuses": [
+            {
+                "statCode": 1,
+                "statValue": [
+                    80,
+                    140,
+                    200,
+                    260,
+                    320,
+                    380,
+                    440,
+                    500,
+                    560,
+                    620
+                ]
+            }
+        ],
+        "setBonusesGrouped": [
+            {
+                "statGroupDisplayName": "Defense Stats",
+                "statIncluded": [
+                    5,
+                    6,
+                    1,
+                    19
+                ],
+                "statBonus": [
+                    10,
+                    11,
+                    12,
+                    13,
+                    14,
+                    15,
+                    16,
+                    17,
+                    18,
+                    20
+                ],
+                "isPercentage": true
+            }
+        ]
+    }    
+]
