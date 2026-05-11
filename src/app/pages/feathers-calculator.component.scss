@@ -244,6 +244,12 @@
   color: #1a1208;
 }
 
+.inventory-toggle {
+  background: rgba(0, 0, 0, 0.04);
+  border-color: rgba(0, 0, 0, 0.18);
+  color: #5a4530;
+}
+
 .inventory-toggle.active {
   border-color: rgba(184, 137, 10, 0.7);
   background: linear-gradient(135deg, rgba(212, 160, 23, 0.22), rgba(240, 196, 60, 0.16));

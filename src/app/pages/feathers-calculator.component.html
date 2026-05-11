@@ -13,6 +13,18 @@
     <!-- Page header actions -->
     <div class="action-row page-action-row">
       <button type="button" class="ghost" (click)="openReferenceModal()">&#128196; View Feather Reference</button>
+      <button
+        type="button"
+        class="inventory-toggle"
+        [class.active]="showBuilderInventory"
+        (click)="toggleInventoryMode()"
+      >{{ showBuilderInventory ? '&#128274; Inventory: On' : '&#128275; Inventory: Off' }}</button>
+      <button
+        type="button"
+        class="ghost"
+        [disabled]="!hasEquippedFeathers()"
+        (click)="convertSetsToInventory()"
+      >&#128229; Convert to Inventory</button>
     </div>
 
     <!-- Build Vault -->
@@ -79,17 +91,17 @@
     <p class="status" *ngIf="savedBuildsMessage">{{ savedBuildsMessage }}</p>
 
     <!-- Inventory -->
-    <div class="info-callout" role="note">
+    <div class="info-callout" role="note" *ngIf="showBuilderInventory">
       <span class="info-callout-icon" aria-hidden="true">&#9432;</span>
       <p>Inventory is pooled by Cost Tier. Any feather can be transformed into any other feather of the same Cost Tier. Set builder levels are capped based on remaining pool budget.</p>
     </div>
 
-    <section class="inventory-section" aria-label="Feather Inventory">
+    <section class="inventory-section" aria-label="Feather Inventory" *ngIf="showBuilderInventory">
       <h2 class="inventory-section-title">Feather Inventory</h2>
       <p class="hint">Enter the number of each feather you own. These pools are shared across ATK and DEF sets.</p>
     </section>
 
-    <div class="optimizer-inventory builder-inventory">
+    <div class="optimizer-inventory builder-inventory" *ngIf="showBuilderInventory">
       <section class="optimizer-group" *ngFor="let group of featherGroups">
         <h3>{{ group.type }} Inventory</h3>
 
@@ -124,7 +136,7 @@
     </div>
 
     <!-- Optimizer Section -->
-    <section class="optimizer-section" aria-label="Build Optimizer">
+    <section class="optimizer-section" aria-label="Build Optimizer" *ngIf="showBuilderInventory">
       <header class="optimizer-section-head">
         <div>
           <p class="optimizer-section-label">Build Optimizer</p>
@@ -167,7 +179,7 @@
       <p class="status optimizer-status" *ngIf="optimizerMessage">{{ optimizerMessage }}</p>
     </section>
 
-    <p class="status" *ngIf="builderInventoryMessage">{{ builderInventoryMessage }}</p>
+    <p class="status" *ngIf="showBuilderInventory && builderInventoryMessage">{{ builderInventoryMessage }}</p>
 
     <!-- ATK Sets -->
     <section class="sets-group sets-group-atk">
@@ -243,7 +255,7 @@
                     [disabled]="!slot.featherId"
                     (input)="onLevelChange(set, slotIndex, $event)"
                   />
-                  <span class="slot-limit-hint" *ngIf="slot.featherId">
+                  <span class="slot-limit-hint" *ngIf="slot.featherId && showBuilderInventory">
                     Max Lv {{ getBuilderSlotMaxLevel(set, slotIndex) }} with current pool
                   </span>
                 </div>
@@ -383,7 +395,7 @@
                     [disabled]="!slot.featherId"
                     (input)="onLevelChange(set, slotIndex, $event)"
                   />
-                  <span class="slot-limit-hint" *ngIf="slot.featherId">
+                  <span class="slot-limit-hint" *ngIf="slot.featherId && showBuilderInventory">
                     Max Lv {{ getBuilderSlotMaxLevel(set, slotIndex) }} with current pool
                   </span>
                 </div>

@@ -293,6 +293,51 @@ export class FeathersCalculatorComponent implements OnInit {
     this.buildCompareCollapsed = !this.buildCompareCollapsed;
   }
 
+  toggleInventoryMode(): void {
+    this.showBuilderInventory = !this.showBuilderInventory;
+    if (this.showBuilderInventory) {
+      this.reconcileBuilderLevelsWithInventory();
+    } else {
+      this.builderInventoryMessage = '';
+      this.optimizerResult = null;
+      this.optimizerMessage = '';
+    }
+  }
+
+  hasEquippedFeathers(): boolean {
+    return this.featherSets.some((set) => set.slots.some((slot) => !!slot.featherId));
+  }
+
+  convertSetsToInventory(): void {
+    const costById = new Map<string, number>();
+
+    for (const set of this.featherSets) {
+      for (const slot of set.slots) {
+        if (!slot.featherId) {
+          continue;
+        }
+
+        const feather = this.featherById.get(slot.featherId);
+        if (!feather) {
+          continue;
+        }
+
+        const slotCost = feather.costLevels[slot.level - 1] ?? 0;
+        costById.set(slot.featherId, (costById.get(slot.featherId) ?? 0) + slotCost);
+      }
+    }
+
+    this.optimizerInventory = this.optimizerInventory.map((item) => ({
+      ...item,
+      quantity: costById.get(item.featherId) ?? 0
+    }));
+
+    this.showBuilderInventory = true;
+    this.optimizerResult = null;
+    this.optimizerMessage = '';
+    this.builderInventoryMessage = 'Inventory synced from current build.';
+  }
+
   toggleBuilderSet(setId: number): void {
     if (this.collapsedBuilderSets.has(setId)) {
       this.collapsedBuilderSets.delete(setId);
@@ -688,10 +733,12 @@ export class FeathersCalculatorComponent implements OnInit {
       quantity: Math.max(0, inventoryById.get(feather.id) ?? 0)
     }));
 
-    this.showBuilderInventory = true;
+    this.showBuilderInventory = selected.showBuilderInventory ?? true;
     this.builderInventoryMessage = '';
 
-    this.reconcileBuilderLevelsWithInventory();
+    if (this.showBuilderInventory) {
+      this.reconcileBuilderLevelsWithInventory();
+    }
 
     this.savedBuildsMessage = `${selected.name} loaded.`;
   }
