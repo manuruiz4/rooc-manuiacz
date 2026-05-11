@@ -1,0 +1,14 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "rooc-manuiacz",
+  "compatibility_date": "2026-05-11",
+  "observability": {
+    "enabled": true
+  },
+  "assets": {
+    "directory": "dist/rooc-manuiacz/browser"
+  },
+  "compatibility_flags": [
+    "nodejs_compat"
+  ]
+}
